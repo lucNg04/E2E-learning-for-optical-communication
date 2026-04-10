@@ -1,2 +1,9 @@
+__pycache__/
+*.pyc
+
+
 /.csv
 /E2E
+/Baseline.
+!Baseline/main_v2.ipynb
+!Baseline/fda_rof_funcs_v4.py
