@@ -1,7 +1,7 @@
 import numpy as np
 from fractions import Fraction
 from scipy.io import loadmat
-from scipy.signal import upfirdn, resample_poly
+from scipy.signal import resample_poly
 from scipy.optimize import minimize
 from scipy.signal import lfilter
 
