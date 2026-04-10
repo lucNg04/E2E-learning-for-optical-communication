@@ -5,10 +5,7 @@ from scipy.signal import upfirdn, resample_poly
 from scipy.optimize import minimize
 from scipy.signal import lfilter
 
-# =========================================================
-# Basic helpers
-# =========================================================
-# Exactly same as matlab, output is same
+
 def load_parabits_mat(mat_path="parabits.mat"):
     mat = loadmat(mat_path)
     if "parabits" not in mat:
@@ -18,12 +15,7 @@ def load_parabits_mat(mat_path="parabits.mat"):
 
 
 def setSimulationParams(*args):
-    """
-    MATLAB:
-        PARAM = setSimulationParams(PARAM)
-        or
-        PARAM = setSimulationParams(sampRate, nSamples)
-    """
+
     if len(args) == 1:
         PARAM = args[0]
         sampRate = PARAM["sampRate"]
@@ -297,108 +289,6 @@ def qpskdemod_with_qamdemod(idata, qdata, para, nd, ml):
         demodata[i, :] = demodulated_bits.reshape(-1)
 
     return demodata
-# def bits_to_integers_msb_first(bits, ml):
-#     weights = 2 ** np.arange(ml - 1, -1, -1)
-#     return bits @ weights
-#
-#
-# def integers_to_bits_msb_first(symbols, ml):
-#     symbols = np.asarray(symbols).astype(int)
-#     bits = ((symbols[:, None] >> np.arange(ml - 1, -1, -1)) & 1).astype(int)
-#     return bits
-#
-#
-# def gray_to_binary(gray):
-#     gray = np.asarray(gray).astype(int)
-#     binary = gray.copy()
-#     shift = 1
-#     while True:
-#         shifted = binary >> shift
-#         if np.all(shifted == 0):
-#             break
-#         binary ^= shifted
-#         shift <<= 1
-#     return binary
-#
-#
-# def qam_constellation_square(M):
-#     """
-#     Non-unit-power square QAM constellation.
-#     For 64-QAM, average power = 42.
-#     """
-#     m_side = int(np.sqrt(M))
-#     if m_side * m_side != M:
-#         raise ValueError(f"M={M} is not a square QAM order.")
-#
-#     levels = np.arange(-(m_side - 1), m_side, 2)
-#     const = np.zeros(M, dtype=complex)
-#
-#     for g in range(M):
-#         b = gray_to_binary(np.array([g]))[0]
-#         i_idx = b % m_side
-#         q_idx = b // m_side
-#         const[g] = levels[i_idx] + 1j * levels[q_idx]
-#
-#     return const
-#
-#
-# def qamdemod_nearest(symbols, M):
-#     const = qam_constellation_square(M)
-#     symbols = np.asarray(symbols).reshape(-1)
-#     dists = np.abs(symbols[:, None] - const[None, :]) ** 2
-#     idx = np.argmin(dists, axis=1)
-#     return idx
-#
-#
-# # =========================================================
-# # MATLAB-converted functions
-# # =========================================================
-#
-# def qpskmod_with_qammod(paradata, para, nd, ml):
-#     """
-#     MATLAB:
-#         function [iout, qout] = qpskmod_with_qammod(paradata, para, nd, ml)
-#     """
-#     paradata = np.asarray(paradata).astype(int)
-#     if paradata.shape != (para, nd * ml):
-#         raise ValueError(f"paradata shape must be ({para}, {nd * ml}), got {paradata.shape}")
-#
-#     M = 2 ** ml
-#     const = qam_constellation_square(M)
-#
-#     iout = np.zeros((para, nd), dtype=float)
-#     qout = np.zeros((para, nd), dtype=float)
-#
-#     for i in range(para):
-#         current_row = paradata[i, :]
-#         bits_reshaped = current_row.reshape(nd, ml)
-#         sym_idx = bits_to_integers_msb_first(bits_reshaped, ml)
-#         modulated = const[sym_idx]
-#         iout[i, :] = np.real(modulated)
-#         qout[i, :] = np.imag(modulated)
-#         print(bits_reshaped)
-#         print(sym_idx)
-#         print(const)
-#         print(modulated)
-#     return iout, qout
-#
-#
-# def qpskdemod_with_qamdemod(idata, qdata, para, nd, ml):
-#     """
-#     MATLAB:
-#         function [demodata] = qpskdemod_with_qamdemod(idata, qdata, para, nd, ml)
-#     """
-#     demodata = np.zeros((para, ml * nd), dtype=int)
-#     complex_data = np.asarray(idata) + 1j * np.asarray(qdata)
-#     M = 2 ** ml
-#
-#     for i in range(para):
-#         current_row = complex_data[i, :]
-#         demodulated_idx = qamdemod_nearest(current_row, M)
-#         demodulated_bits = integers_to_bits_msb_first(demodulated_idx, ml)
-#         demodata[i, :] = demodulated_bits.reshape(-1)
-#
-#     return demodata
 
 
 def crmapping(idata, qdata, fftlen, nd):
