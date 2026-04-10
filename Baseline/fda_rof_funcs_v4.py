@@ -62,11 +62,7 @@ def awgn_measured(x, snr_db):
 
 
 def rrc_impulse(beta, sps, span):
-    """
-    Root Raised Cosine impulse response
-    span: filter span in symbols
-    sps : samples per symbol
-    """
+
     N = span * sps
     t = np.arange(-N / 2, N / 2 + 1) / sps
     h = np.zeros_like(t, dtype=float)
