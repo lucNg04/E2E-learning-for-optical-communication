@@ -233,11 +233,7 @@ def qpskmod_with_qammod(paradata, para, nd, ml):
 
 
 def qpskdemod_with_qamdemod(idata, qdata, para, nd, ml):
-    """
-    MATLAB equivalent:
-        qamdemod(y, M, 'OutputType', 'bit')
-    by nearest-neighbor to MATLAB-like Gray-coded constellation
-    """
+
     demodata = np.zeros((para, ml * nd), dtype=int)
     complex_data = np.asarray(idata) + 1j * np.asarray(qdata)
     M = 2 ** ml
