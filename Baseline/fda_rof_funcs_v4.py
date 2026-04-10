@@ -60,9 +60,6 @@ def awgn_measured(x, snr_db):
     return x + noise
 
 
-# =========================================================
-# RRC filter helpers
-# =========================================================
 
 def rrc_impulse(beta, sps, span):
     """
@@ -96,25 +93,16 @@ def rrc_impulse(beta, sps, span):
 
 
 def apply_rrc_tx(x, beta, sps, span):
-    """
-    MATLAB-like:
-        rctFilt = comm.RaisedCosineTransmitFilter(...)
-        y = rctFilt([x; zeros(span/2,1)]);
-        y = y((span*sps)/2 + 1 : end);
-
-    这里显式控制输出长度为 len(x) * sps
-    """
 
     x = np.asarray(x).reshape(-1)
     xpad = np.concatenate([x, np.zeros(span // 2, dtype=x.dtype)])
 
     h = rrc_impulse(beta, sps, span)
 
-    # 手动上采样
+
     upsampled = np.zeros(len(xpad) * sps, dtype=np.complex128)
     upsampled[::sps] = xpad
 
-    # 用 lfilter，而不是 full convolution
     y = lfilter(h, [1.0], upsampled)
 
     delay = (span * sps) // 2
@@ -126,32 +114,20 @@ def apply_rrc_tx(x, beta, sps, span):
 
 
 def apply_rrc_rx(x, beta, sps, span):
-    """
-    MATLAB-like:
-        rctFilt = comm.RaisedCosineReceiveFilter(..., DecimationFactor=1)
-        y = rctFilt([x; zeros(order*sps/2,1)]);
-        y = y((order*sps)/2 + 1 : end);
 
-    这里显式控制输出长度为 len(x)
-    """
     x = np.asarray(x).reshape(-1)
     xpad = np.concatenate([x, np.zeros((span * sps) // 2, dtype=x.dtype)])
 
     h = rrc_impulse(beta, sps, span)
 
-    # 用 lfilter，而不是 full convolution
+
     y = lfilter(h, [1.0], xpad)
 
     delay = (span * sps) // 2
     y = y[delay:]
 
-    # MATLAB 目标长度应与原输入 x 一致
     y = y[: len(x)]
     return y
-
-# =========================================================
-# QAM helpers
-# =========================================================
 
 
 
@@ -186,13 +162,7 @@ def binary_to_gray(binary):
 
 
 def qam_symbol_from_bits_gray(bits_row):
-    """
-    bits_row: shape (ml,)
-    MATLAB-like square QAM Gray mapping:
-    - split bits into I half and Q half
-    - each half is Gray-coded PAM
-    - Q axis goes from top to bottom
-    """
+
     bits_row = np.asarray(bits_row).astype(int).reshape(-1)
     ml = len(bits_row)
 
@@ -221,10 +191,7 @@ def qam_symbol_from_bits_gray(bits_row):
 
 
 def qam_constellation_square(M):
-    """
-    MATLAB-like default Gray-coded square QAM constellation.
-    Indexed by natural integer symbol index written in MSB-first bits.
-    """
+
     ml = int(np.log2(M))
     if 2 ** ml != M:
         raise ValueError("M must be a power of 2.")
@@ -249,10 +216,7 @@ def qamdemod_nearest(symbols, M):
 
 
 def qpskmod_with_qammod(paradata, para, nd, ml):
-    """
-    MATLAB equivalent:
-        qammod(current_row.', 2^ml, 'InputType', 'bit')
-    """
+
     paradata = np.asarray(paradata).astype(int)
     if paradata.shape != (para, nd * ml):
         raise ValueError(f"paradata shape must be ({para}, {nd * ml}), got {paradata.shape}")
